@@ -51,7 +51,6 @@
         </aside>
 
         <main class="content">
-            <!-- Dashboard Section -->
             <section id="dashboard" class="content-section active">
                 <div class="section-header">
                     <div>
@@ -146,7 +145,6 @@
                 </div>
             </section>
 
-            <!-- Companies Section -->
             <section id="companies" class="content-section">
                 <div class="section-header">
                     <div>
@@ -171,7 +169,6 @@
                 <div class="company-grid" id="companyGrid"></div>
             </section>
 
-            <!-- Sessions Section -->
             <section id="sessions" class="content-section">
                 <div class="section-header">
                     <div>
@@ -211,12 +208,12 @@
 
                     <div class="card profile-section-card">
                         <h2>👤 Profilo Cliente</h2>
-                        <div class="profile-sections">
-                            <div class="form-group">
-                                <label>📝 Note Generali</label>
-                                <textarea id="clientNotes" class="form-control" rows="3" placeholder="Inserisci note generali sul cliente..."></textarea>
-                            </div>
+                        <div class="form-group">
+                            <label>📝 Note Generali</label>
+                            <textarea id="clientNotes" class="form-control" rows="3" placeholder="Inserisci note generali sul cliente..."></textarea>
+                        </div>
 
+                        <div class="profile-sections">
                             <div class="form-group">
                                 <label>🔄 Abitudini</label>
                                 <div id="habitsSection" class="item-list"></div>
@@ -301,12 +298,17 @@
                             <button class="btn btn-warning" onclick="saveClientData()">
                                 💾 Salva Modifiche
                             </button>
+                            <button class="btn btn-primary" onclick="showClientAdvancedStats()">
+                                📊 Stats Avanzate
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportClientData(appData.currentClientId, appData.currentCompanyId)">
+                                📤 Esporta Dati Cliente
+                            </button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Analytics Section -->
             <section id="analytics" class="content-section">
                 <div class="section-header">
                     <div>
@@ -364,7 +366,6 @@
                 </div>
             </section>
 
-            <!-- Tools Section -->
             <section id="tools" class="content-section">
                 <div class="section-header">
                     <div>
@@ -440,7 +441,6 @@
                 </div>
             </section>
 
-            <!-- Settings Section -->
             <section id="settings" class="content-section">
                 <div class="section-header">
                     <div>
@@ -510,7 +510,7 @@
                         </div>
                         <div class="form-group">
                             <label>🗂️ Formato Export</label>
-                            <select class="form-select" id="exportFormat">
+                            <select class="form-select" id="exportFormat" onchange="exportDataAdvanced()">
                                 <option value="json" selected>JSON (Completo)</option>
                                 <option value="csv">CSV (Solo dati)</option>
                                 <option value="pdf">PDF (Report)</option>
@@ -522,7 +522,6 @@
         </main>
     </div>
 
-    <!-- Modals -->
     <div id="addCompanyModal" class="modal">
         <div class="modal-content">
             <h2>🏢 Aggiungi Azienda</h2>
@@ -600,7 +599,6 @@
         </div>
     </div>
 
-    <!-- Scripts - ORDINE IMPORTANTE -->
     <script src="data.js"></script>
     <script src="utils.js"></script>
     <script src="dom.js"></script>
@@ -611,688 +609,6 @@
     <script src="dashboardManagement.js"></script>
     <script src="features.js"></script>
     
-    <!-- Navigation Fix Script - DEVE ESSERE L'ULTIMO -->
-    <script>
-// navigation-fix.js integrato - Fix completo per la navigazione
-
-// Variabili globali per la gestione dello stato
-let isNavigationSetup = false;
-let currentSection = 'dashboard';
-
-// Funzione principale di inizializzazione
-function initApp() {
-    console.log('🚀 Inizializzazione Mental Coach Pro...');
-    
-    try {
-        // Carica i dati salvati
-        loadDataFromLocalStorage();
-        
-        // Inizializza le funzioni di base
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
-        
-        // Configura la navigazione
-        setupNavigation();
-        
-        // Configura i filtri di ricerca
-        setupSearchFilters();
-        
-        // Carica le preferenze se la funzione esiste
-        if (typeof loadPreferences === 'function') {
-            loadPreferences();
-        }
-        
-        // Setup auto-salvataggio se la funzione esiste
-        if (typeof setupAutosave === 'function') {
-            setupAutosave();
-        }
-        
-        // Aggiorna i dati della dashboard
-        updateDashboard();
-        
-        // Aggiorna analytics
-        updateAnalytics();
-        
-        // Renderizza i componenti principali
-        renderGlobalTodos();
-        renderCategories();
-        renderTags();
-        
-        // Nascondi tutti i modali
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.style.display = 'none';
-        });
-        
-        // Mostra la sezione dashboard
-        showSection('dashboard');
-        
-        // Setup event listeners aggiuntivi
-        setupAdditionalEventListeners();
-        
-        console.log('✅ Inizializzazione completata con successo');
-        
-    } catch (error) {
-        console.error('❌ Errore durante l\'inizializzazione:', error);
-        alert('Errore durante l\'inizializzazione dell\'applicazione. Ricarica la pagina.');
-    }
-}
-
-// Setup della navigazione con debugging
-function setupNavigation() {
-    console.log('🧭 Setup navigazione...');
-    
-    if (isNavigationSetup) {
-        console.log('⚠️ Navigazione già configurata');
-        return;
-    }
-    
-    const navTabs = document.querySelectorAll('.nav-tab');
-    console.log(`📋 Trovati ${navTabs.length} tab di navigazione`);
-    
-    navTabs.forEach((tab, index) => {
-        const sectionId = tab.dataset.section;
-        console.log(`🔗 Configurando tab ${index + 1}: ${sectionId}`);
-        
-        // Rimuovi listener esistenti per evitare duplicati
-        tab.replaceWith(tab.cloneNode(true));
-        const newTab = document.querySelectorAll('.nav-tab')[index];
-        
-        // Aggiungi nuovo listener
-        newTab.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            
-            const targetSection = this.dataset.section;
-            console.log(`🎯 Click su tab: ${targetSection}`);
-            
-            if (targetSection) {
-                showSection(targetSection);
-            } else {
-                console.error('❌ Sezione non trovata per tab:', this);
-            }
-        });
-    });
-    
-    isNavigationSetup = true;
-    console.log('✅ Navigazione configurata');
-}
-
-// Funzione per mostrare una sezione specifica
-function showSection(sectionId) {
-    console.log(`🔄 Cambio sezione: ${currentSection} → ${sectionId}`);
-    
-    if (currentSection === sectionId) {
-        console.log('⚠️ Sezione già attiva');
-        return;
-    }
-    
-    try {
-        // Rimuovi classe active da tutte le sezioni
-        document.querySelectorAll('.content-section').forEach(section => {
-            section.classList.remove('active');
-        });
-        
-        // Rimuovi classe active da tutti i tab
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        
-        // Attiva la sezione target
-        const targetSection = document.getElementById(sectionId);
-        const targetTab = document.querySelector(`.nav-tab[data-section="${sectionId}"]`);
-        
-        if (targetSection && targetTab) {
-            targetSection.classList.add('active');
-            targetTab.classList.add('active');
-            currentSection = sectionId;
-            
-            // Carica i dati specifici per la sezione
-            loadSectionData(sectionId);
-            
-            console.log(`✅ Sezione attivata: ${sectionId}`);
-        } else {
-            console.error(`❌ Sezione o tab non trovato: ${sectionId}`);
-        }
-        
-    } catch (error) {
-        console.error('❌ Errore nel cambio sezione:', error);
-    }
-}
-
-// Carica i dati specifici per ogni sezione
-function loadSectionData(sectionId) {
-    console.log(`📊 Caricamento dati per sezione: ${sectionId}`);
-    
-    try {
-        switch(sectionId) {
-            case 'dashboard':
-                updateDashboard();
-                renderGlobalTodos();
-                break;
-                
-            case 'companies':
-                if (typeof renderCompanies === 'function') {
-                    renderCompanies();
-                }
-                break;
-                
-            case 'sessions':
-                if (typeof loadCompaniesForSessionSelection === 'function') {
-                    loadCompaniesForSessionSelection();
-                }
-                break;
-                
-            case 'analytics':
-                updateAnalytics();
-                loadAnalyticsData();
-                break;
-                
-            case 'tools':
-                loadToolsSection();
-                break;
-                
-            case 'settings':
-                renderCategories();
-                renderTags();
-                break;
-                
-            default:
-                console.log(`⚠️ Nessun caricamento specifico per: ${sectionId}`);
-        }
-        
-    } catch (error) {
-        console.error(`❌ Errore caricamento dati per ${sectionId}:`, error);
-    }
-}
-
-// Setup dei filtri di ricerca
-function setupSearchFilters() {
-    console.log('🔍 Setup filtri di ricerca...');
-    
-    // Filtro aziende
-    const companySearch = document.getElementById('companySearch');
-    if (companySearch) {
-        companySearch.addEventListener('input', debounce(filterCompanies, 300));
-        console.log('✅ Filtro aziende configurato');
-    }
-    
-    // Filtro tipo azienda
-    const companyFilter = document.getElementById('companyFilter');
-    if (companyFilter) {
-        companyFilter.addEventListener('change', filterCompanies);
-        console.log('✅ Filtro tipo azienda configurato');
-    }
-    
-    // Filtro clienti
-    const clientSearch = document.getElementById('clientSearch');
-    if (clientSearch) {
-        clientSearch.addEventListener('input', debounce(filterClients, 300));
-        console.log('✅ Filtro clienti configurato');
-    }
-    
-    // Filtro clienti nel modal
-    const modalClientSearch = document.getElementById('modalClientSearch');
-    if (modalClientSearch) {
-        modalClientSearch.addEventListener('input', debounce(filterModalClients, 300));
-        console.log('✅ Filtro clienti modal configurato');
-    }
-}
-
-// Setup event listeners aggiuntivi
-function setupAdditionalEventListeners() {
-    console.log('🎧 Setup event listeners aggiuntivi...');
-    
-    // Event listener per salvare le note del cliente
-    const clientNotes = document.getElementById('clientNotes');
-    if (clientNotes) {
-        clientNotes.addEventListener('blur', saveClientNotes);
-        
-        // Auto-save durante la digitazione
-        let saveTimeout;
-        clientNotes.addEventListener('input', () => {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(saveClientNotes, 2000);
-        });
-        
-        console.log('✅ Auto-save note cliente configurato');
-    }
-    
-    // Event listener per le preferenze
-    ['emailNotifications', 'pushNotifications', 'timezone', 'autosave'].forEach(id => {
-        const element = document.getElementById(id);
-        if (element && typeof savePreferences === 'function') {
-            element.addEventListener('change', savePreferences);
-        }
-    });
-    
-    // Event listener per i modali (chiusura con ESC)
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-            const visibleModals = document.querySelectorAll('.modal[style*="flex"]');
-            visibleModals.forEach(modal => {
-                modal.style.display = 'none';
-            });
-        }
-    });
-    
-    console.log('✅ Event listeners aggiuntivi configurati');
-}
-
-// Funzioni di filtro
-function filterCompanies() {
-    const searchTerm = document.getElementById('companySearch')?.value?.toLowerCase() || '';
-    const filterType = document.getElementById('companyFilter')?.value || '';
-    
-    console.log(`🔍 Filtro aziende: "${searchTerm}" tipo: "${filterType}"`);
-    
-    if (typeof renderCompanies === 'function') {
-        renderCompanies(searchTerm, filterType);
-    }
-}
-
-function filterClients() {
-    const searchTerm = document.getElementById('clientSearch')?.value?.toLowerCase() || '';
-    console.log(`🔍 Filtro clienti: "${searchTerm}"`);
-    
-    if (appData.currentCompanyId && typeof renderClientsForSessionSelection === 'function') {
-        renderClientsForSessionSelection();
-    }
-}
-
-function filterModalClients() {
-    const searchTerm = document.getElementById('modalClientSearch')?.value?.toLowerCase() || '';
-    console.log(`🔍 Filtro clienti modal: "${searchTerm}"`);
-    
-    if (appData.currentCompanyId) {
-        const company = appData.companies.find(c => c.id === appData.currentCompanyId);
-        if (company && typeof renderClientsInModal === 'function') {
-            renderClientsInModal(company, searchTerm);
-        }
-    }
-}
-
-// Funzioni Analytics
-function updateAnalytics() {
-    console.log('📈 Aggiornamento analytics...');
-    
-    let totalGoals = 0;
-    let completedGoals = 0;
-    let currentMonthSessions = 0;
-
-    appData.companies.forEach(company => {
-        company.clients.forEach(client => {
-            client.masterElements.forEach(master => {
-                totalGoals++;
-                if (master.subElements.length > 0 && master.subElements.every(sub => sub.completed)) {
-                    completedGoals++;
-                }
-            });
-            
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            client.sessionHistory.forEach(session => {
-                const sessionDate = new Date(session.date);
-                if (sessionDate.getMonth() === currentMonth && sessionDate.getFullYear() === currentYear) {
-                    currentMonthSessions++;
-                }
-            });
-        });
-    });
-
-    const completionRate = totalGoals > 0 ? ((completedGoals / totalGoals) * 100).toFixed(1) : 0;
-    const activeGoals = totalGoals - completedGoals;
-
-    const completionRateEl = document.getElementById('completionRate');
-    const averageRatingEl = document.getElementById('averageRating');
-    const activeGoalsEl = document.getElementById('activeGoals');
-    const monthlyAverageEl = document.getElementById('monthlyAverage');
-
-    if (completionRateEl) completionRateEl.textContent = completionRate + '%';
-    if (averageRatingEl) averageRatingEl.textContent = '0.0';
-    if (activeGoalsEl) activeGoalsEl.textContent = activeGoals;
-    if (monthlyAverageEl) monthlyAverageEl.textContent = currentMonthSessions;
-    
-    console.log('✅ Analytics aggiornati');
-}
-
-function loadAnalyticsData() {
-    console.log('📊 Caricamento dati analytics...');
-    
-    const topPerformanceDiv = document.getElementById('topPerformance');
-    if (topPerformanceDiv) {
-        const clientPerformance = [];
-        
-        appData.companies.forEach(company => {
-            company.clients.forEach(client => {
-                const completedGoals = client.masterElements.filter(m => 
-                    m.subElements.length > 0 && m.subElements.every(s => s.completed)
-                ).length;
-                
-                const totalGoals = client.masterElements.length;
-                const completionRate = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
-                
-                clientPerformance.push({
-                    name: `${client.firstName} ${client.lastName}`,
-                    company: company.name,
-                    completionRate: completionRate,
-                    sessionsCompleted: client.completedSessions,
-                    totalSessions: client.plannedSessions
-                });
-            });
-        });
-        
-        clientPerformance.sort((a, b) => b.completionRate - a.completionRate);
-        const top5 = clientPerformance.slice(0, 5);
-        
-        if (top5.length > 0) {
-            topPerformanceDiv.innerHTML = top5.map((client, index) => `
-                <div class="performance-item">
-                    <div>
-                        <strong>${index + 1}. ${client.name}</strong>
-                        <small>${client.company}</small>
-                    </div>
-                    <div class="performance-stats">
-                        <span class="completion-rate">${client.completionRate.toFixed(1)}%</span>
-                        <small>${client.sessionsCompleted}/${client.totalSessions} sessioni</small>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            topPerformanceDiv.innerHTML = '<p class="text-muted">I dati delle performance appariranno qui quando avrai più clienti attivi.</p>';
-        }
-    }
-}
-
-// Funzioni per la sezione Tools
-function loadToolsSection() {
-    console.log('🛠️ Caricamento sezione strumenti...');
-}
-
-function openAssessmentTool() {
-    showTemporaryMessage('📋 Assessment Tool - Funzionalità in sviluppo', 3000);
-}
-
-function openGoalTracker() {
-    showTemporaryMessage('🎯 Goal Tracker - Funzionalità in sviluppo', 3000);
-}
-
-function openFeedbackForm() {
-    showTemporaryMessage('💬 Feedback 360° - Funzionalità in sviluppo', 3000);
-}
-
-function openActionPlan() {
-    showTemporaryMessage('📝 Action Plan - Funzionalità in sviluppo', 3000);
-}
-
-function openWheelOfLife() {
-    showTemporaryMessage('🎡 Wheel of Life - Funzionalità in sviluppo', 3000);
-}
-
-function openSWOTAnalysis() {
-    showTemporaryMessage('⚖️ Analisi SWOT - Funzionalità in sviluppo', 3000);
-}
-
-function downloadTemplate(type) {
-    showTemporaryMessage(`📄 Download template ${type} - Funzionalità in sviluppo`, 3000);
-}
-
-function generateAnalyticsReport() {
-    showTemporaryMessage('📊 Generazione report analytics - Funzionalità in sviluppo', 3000);
-}
-
-// Funzione per aggiornare le barre di progresso
-function updateProgress() {
-    const companyId = appData.currentCompanyId;
-    const clientId = appData.currentClientId;
-    
-    if (!companyId || !clientId) return;
-    
-    const company = appData.companies.find(c => c.id === companyId);
-    const client = company?.clients.find(c => c.id === clientId);
-    
-    if (!client) return;
-    
-    const sessionProgress = Math.min((client.completedSessions / client.plannedSessions) * 100, 100);
-    const sessionProgressBar = document.getElementById('sessionProgress');
-    const progressText = document.getElementById('progressText');
-    
-    if (sessionProgressBar) {
-        sessionProgressBar.style.width = sessionProgress + '%';
-    }
-    if (progressText) {
-        progressText.textContent = 
-            `${client.completedSessions}/${client.plannedSessions} sessioni (${sessionProgress.toFixed(1)}%)`;
-    }
-    
-    let totalObjectives = client.masterElements.length;
-    let completedObjectives = client.masterElements.filter(master => 
-        master.subElements.length > 0 && master.subElements.every(sub => sub.completed)
-    ).length;
-    
-    const coachingProgress = totalObjectives > 0 ? (completedObjectives / totalObjectives) * 100 : 0;
-    const coachingProgressBar = document.getElementById('coachingProgress');
-    const coachingProgressText = document.getElementById('coachingProgressText');
-    
-    if (coachingProgressBar) {
-        coachingProgressBar.style.width = coachingProgress + '%';
-    }
-    if (coachingProgressText) {
-        coachingProgressText.textContent = 
-            `${completedObjectives}/${totalObjectives} obiettivi (${coachingProgress.toFixed(1)}%)`;
-    }
-}
-
-// Utility functions
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
-
-function showTemporaryMessage(message, duration = 3000) {
-    const existingMessages = document.querySelectorAll('.temporary-message');
-    existingMessages.forEach(msg => msg.remove());
-    
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'temporary-message';
-    messageDiv.textContent = message;
-    messageDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        padding: 15px 25px;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        z-index: 9999;
-        font-weight: 500;
-        font-size: 0.9rem;
-        animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        max-width: 300px;
-        word-wrap: break-word;
-    `;
-    
-    document.body.appendChild(messageDiv);
-    
-    setTimeout(() => {
-        messageDiv.style.animation = 'slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-        setTimeout(() => {
-            if (messageDiv.parentNode) {
-                document.body.removeChild(messageDiv);
-            }
-        }, 400);
-    }, duration);
-}
-
-function debugNavigation() {
-    console.log('🔍 Debug Navigazione:');
-    console.log('- isNavigationSetup:', isNavigationSetup);
-    console.log('- currentSection:', currentSection);
-    console.log('- Nav tabs trovati:', document.querySelectorAll('.nav-tab').length);
-    console.log('- Sezioni trovate:', document.querySelectorAll('.content-section').length);
-    
-    document.querySelectorAll('.nav-tab').forEach((tab, index) => {
-        console.log(`  Tab ${index + 1}: ${tab.dataset.section} - ${tab.classList.contains('active') ? 'ATTIVO' : 'inattivo'}`);
-    });
-    
-    document.querySelectorAll('.content-section').forEach((section, index) => {
-        console.log(`  Sezione ${index + 1}: ${section.id} - ${section.classList.contains('active') ? 'ATTIVA' : 'inattiva'}`);
-    });
-}
-
-// Funzioni helper per salvataggio note
-function saveClientNotes() {
-    const notesTextarea = document.getElementById('clientNotes');
-    if (notesTextarea && appData.currentCompanyId && appData.currentClientId) {
-        const company = appData.companies.find(c => c.id === appData.currentCompanyId);
-        const client = company?.clients.find(c => c.id === appData.currentClientId);
-        
-        if (client) {
-            client.notes = notesTextarea.value;
-            saveDataToLocalStorage();
-            
-            notesTextarea.style.borderColor = '#4facfe';
-            setTimeout(() => {
-                notesTextarea.style.borderColor = '';
-            }, 1000);
-        }
-    }
-}
-
-// CSS per le animazioni
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    
-    .performance-item {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        transition: all 0.3s ease;
-    }
-    
-    .performance-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    
-    .performance-stats {
-        text-align: right;
-    }
-    
-    .completion-rate {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #667eea;
-        display: block;
-    }
-    
-    .performance-stats small {
-        color: #64748b;
-        font-size: 0.8rem;
-    }
-    
-    .resource-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
-    
-    .resource-item {
-        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        transition: all 0.3s ease;
-    }
-    
-    .resource-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    
-    .resource-item h4 {
-        margin-bottom: 8px;
-        color: #1e293b;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-    
-    .resource-item p {
-        margin-bottom: 15px;
-        color: #64748b;
-        font-size: 0.9rem;
-    }
-    
-    .chart-placeholder {
-        text-align: center;
-        padding: 60px 20px;
-        color: #64748b;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border-radius: 12px;
-        border: 2px dashed #cbd5e1;
-    }
-    
-    .chart-icon {
-        font-size: 3rem;
-        margin-bottom: 20px;
-    }
-    
-    .checkbox-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.9rem;
-        color: #374151;
-    }
-    
-    .checkbox-label input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: #667eea;
-    }
-`;
-
-if (!document.querySelector('#navigation-styles')) {
-    style.id = 'navigation-styles';
-    document.head.appendChild(style);
-}
-
-// Esporta funzioni per uso globale
-window.showSection = showSection;
-window.debugNavigation = debugNavigation;
-window.showTemporaryMessage = showTemporaryMessage;
-
-// Event listener per il caricamento
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
-} else {
-    // Se il DOM è già caricato, inizializza subito
-    setTimeout(initApp, 100);
-}
-
-console.log('📱 Mental Coach Pro - Sistema di navigazione caricato');
-    </script>
+    <script src="navigation_fix.js"></script>
 </body>
 </html>
