@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mental Coach Pro - Piattaforma di Coaching Aziendale</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar no-print">
+            <div class="logo">
+                <h2>🧠 Mental Coach Pro</h2>
+                <p>Piattaforma di Coaching Aziendale</p>
+            </div>
+            <nav class="nav-tabs">
+                <div class="nav-tab active" data-section="dashboard">
+                    <div class="nav-tab-icon">📊</div>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-tab" data-section="companies">
+                    <div class="nav-tab-icon">🏢</div>
+                    <span>Aziende</span>
+                </div>
+                <div class="nav-tab" data-section="sessions">
+                    <div class="nav-tab-icon">👥</div>
+                    <span>Sessioni</span>
+                </div>
+                <div class="nav-tab" data-section="analytics">
+                    <div class="nav-tab-icon">📈</div>
+                    <span>Analytics</span>
+                </div>
+                <div class="nav-tab" data-section="tools">
+                    <div class="nav-tab-icon">🛠️</div>
+                    <span>Strumenti</span>
+                </div>
+                <div class="nav-tab" data-section="settings">
+                    <div class="nav-tab-icon">⚙️</div>
+                    <span>Impostazioni</span>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="currentDateTime"></p>
+                <p>v2.1 - Navigazione Fix</p>
+                <button onclick="debugNavigation()" style="margin-top: 10px; padding: 5px 10px; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 0.7rem;">🔍 Debug</button>
+            </div>
+        </aside>
+
+        <main class="content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <div>
+                        <h1>Dashboard</h1>
+                        <p>Panoramica generale delle tue attività di coaching</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="updateDashboard()">
+                        🔄 Aggiorna Dati
+                    </button>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-card-icon">🏢</div>
+                        <h3>Aziende Totali</h3>
+                        <div class="value" id="totalCompanies">0</div>
+                        <div class="subtitle">Registrate nel sistema</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">👥</div>
+                        <h3>Clienti Attivi</h3>
+                        <div class="value" id="activeClients">0</div>
+                        <div class="subtitle">In percorsi di coaching</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">📅</div>
+                        <h3>Sessioni Oggi</h3>
+                        <div class="value" id="todaySessions">0</div>
+                        <div class="subtitle">Programmate per oggi</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">⏱️</div>
+                        <h3>Ore Totali</h3>
+                        <div class="value" id="totalHours">0</div>
+                        <div class="subtitle">Di coaching erogate</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🚀 Azioni Rapide</h2>
+                    <div class="quick-actions-grid">
+                        <div class="quick-action-item" onclick="showSection('companies')">
+                            <div class="quick-action-icon">🏢</div>
+                            <div class="quick-action-content">
+                                <h4>Gestisci Aziende</h4>
+                                <p>Aggiungi o modifica aziende</p>
+                            </div>
+                        </div>
+                        <div class="quick-action-item" onclick="showSection('sessions')">
+                            <div class="quick-action-icon">👥</div>
+                            <div class="quick-action-content">
+                                <h4>Nuova Sessione</h4>
+                                <p>Avvia una sessione di coaching</p>
+                            </div>
+                        </div>
+                        <div class="quick-action-item" onclick="exportAllData()">
+                            <div class="quick-action-icon">💾</div>
+                            <div class="quick-action-content">
+                                <h4>Backup Dati</h4>
+                                <p>Esporta tutti i dati</p>
+                            </div>
+                        </div>
+                        <div class="quick-action-item" onclick="showSection('analytics')">
+                            <div class="quick-action-icon">📊</div>
+                            <div class="quick-action-content">
+                                <h4>Visualizza Report</h4>
+                                <p>Analizza i progressi</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📝 Promemoria Globali</h2>
+                    <div id="globalTodos" class="mb-3"></div>
+                    <button class="btn btn-primary" onclick="addGlobalTodo()">
+                        ➕ Aggiungi Promemoria
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h2>📊 Gestione Dati</h2>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-info" onclick="exportAllData()">
+                            📤 Esporta Dati (JSON)
+                        </button>
+                        <button class="btn btn-secondary" onclick="importData()">
+                            📥 Importa Dati
+                        </button>
+                        <input type="file" id="importFile" style="display: none;" accept=".json" onchange="handleImport(event)">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Companies Section -->
+            <section id="companies" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h1>Gestione Aziende</h1>
+                        <p>Organizza e gestisci le aziende clienti</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="showAddCompanyModal()">
+                        ➕ Aggiungi Azienda
+                    </button>
+                </div>
+
+                <div class="search-filter-bar">
+                    <input type="text" class="search-input" placeholder="🔍 Cerca aziende..." id="companySearch">
+                    <select class="filter-select" id="companyFilter">
+                        <option value="">Tutti i tipi</option>
+                        <option value="small">Piccole (1-10 clienti)</option>
+                        <option value="medium">Medie (11-50 clienti)</option>
+                        <option value="large">Grandi (50+ clienti)</option>
+                    </select>
+                </div>
+                
+                <div class="company-grid" id="companyGrid"></div>
+            </section>
+
+            <!-- Sessions Section -->
+            <section id="sessions" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h1>Gestione Sessioni</h1>
+                        <p>Conduci e monitora le sessioni di coaching</p>
+                    </div>
+                </div>
+
+                <div class="card" id="sessionCompanySelectionCard">
+                    <h2>🏢 Seleziona Azienda</h2>
+                    <select id="sessionCompanySelect" class="form-select">
+                        <option value="">Seleziona un'azienda...</option>
+                    </select>
+                    <div class="company-grid mt-3" id="sessionCompanyCards"></div>
+                </div>
+
+                <div class="card" id="sessionClientSelectionCard" style="display: none;">
+                    <h2>👤 Seleziona Cliente</h2>
+                    <div class="search-filter-bar">
+                        <input type="text" class="search-input" placeholder="🔍 Cerca clienti..." id="clientSearch">
+                    </div>
+                    <div class="client-select-grid" id="clientSelectGrid"></div>
+                </div>
+
+                <div id="clientSessionView" style="display: none;">
+                    <div class="card client-info-card">
+                        <div class="client-header">
+                            <h2 id="clientNameDisplay"></h2>
+                            <span class="compliance-indicator" id="complianceIndicator"></span>
+                        </div>
+                        <div id="clientInfoDisplay"></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="sessionProgress"></div>
+                        </div>
+                        <div class="progress-text" id="progressText"></div>
+                    </div>
+
+                    <div class="card profile-section-card">
+                        <h2>👤 Profilo Cliente</h2>
+                        <div class="profile-sections">
+                            <div class="form-group">
+                                <label>📝 Note Generali</label>
+                                <textarea id="clientNotes" class="form-control" rows="3" placeholder="Inserisci note generali sul cliente..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>🔄 Abitudini</label>
+                                <div id="habitsSection" class="item-list"></div>
+                                <button class="btn btn-primary btn-sm" onclick="addHabit()">
+                                    ➕ Aggiungi Abitudine
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>💪 Punti di Forza</label>
+                                <div id="strengthsSection" class="item-list"></div>
+                                <button class="btn btn-success btn-sm" onclick="addStrength()">
+                                    ➕ Aggiungi Punto di Forza
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <label>📈 Aree di Miglioramento</label>
+                                <div id="improvementsSection" class="item-list"></div>
+                                <button class="btn btn-warning btn-sm" onclick="addImprovementArea()">
+                                    ➕ Aggiungi Area di Miglioramento
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <label>💎 Valori Personali</label>
+                                <div id="valuesSection" class="item-list"></div>
+                                <button class="btn btn-info btn-sm" onclick="addValue()">
+                                    ➕ Aggiungi Valore
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card coaching-path-card">
+                        <h2>🎯 Percorso di Coaching</h2>
+                        <div class="mb-3">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="coachingProgress"></div>
+                            </div>
+                            <div class="progress-text" id="coachingProgressText"></div>
+                        </div>
+                        <div id="masterElementsSection"></div>
+                        <button class="btn btn-primary" onclick="addMasterElement()">
+                            🎯 Aggiungi Obiettivo
+                        </button>
+                    </div>
+
+                    <div class="card todo-card">
+                        <h2>✅ To-Do per questo Cliente</h2>
+                        <div id="clientTodos" class="mb-3"></div>
+                        <button class="btn btn-primary" onclick="addClientTodo()">
+                            ➕ Aggiungi To-Do
+                        </button>
+                    </div>
+
+                    <div class="card session-history-card">
+                        <h2>📚 Storico Sessioni</h2>
+                        <div class="session-history" id="sessionHistory"></div>
+                    </div>
+
+                    <div class="card session-record-card no-print">
+                        <h2>⏱️ Registra Nuova Sessione</h2>
+                        <div class="form-group">
+                            <label>Ore effettive</label>
+                            <input type="number" id="sessionHours" min="0.5" step="0.5" value="1.5" class="form-control">
+                        </div>
+                        <button class="btn btn-success" onclick="saveSession()">
+                            ✅ Termina e Registra Sessione
+                        </button>
+                    </div>
+
+                    <div class="card action-card no-print">
+                        <h2>🔧 Azioni</h2>
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-secondary" onclick="window.print()">
+                                🖨️ Stampa Scheda
+                            </button>
+                            <button class="btn btn-info" onclick="generateHRReport()">
+                                📄 Genera Report PDF
+                            </button>
+                            <button class="btn btn-warning" onclick="saveClientData()">
+                                💾 Salva Modifiche
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h1>Analytics & Report</h1>
+                        <p>Analizza i progressi e le performance</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateAnalyticsReport()">
+                        📊 Genera Report Completo
+                    </button>
+                </div>
+
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-card-icon">📈</div>
+                        <h3>Tasso di Completamento</h3>
+                        <div class="value" id="completionRate">0%</div>
+                        <div class="subtitle">Obiettivi raggiunti</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">⭐</div>
+                        <h3>Valutazione Media</h3>
+                        <div class="value" id="averageRating">0.0</div>
+                        <div class="subtitle">Soddisfazione clienti</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">🎯</div>
+                        <h3>Obiettivi Attivi</h3>
+                        <div class="value" id="activeGoals">0</div>
+                        <div class="subtitle">In corso</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">📅</div>
+                        <h3>Media Sessioni/Mese</h3>
+                        <div class="value" id="monthlyAverage">0</div>
+                        <div class="subtitle">Ultimo trimestre</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📊 Grafici Performance</h2>
+                    <div class="analytics-charts" id="analyticsCharts">
+                        <div class="chart-placeholder">
+                            <div class="chart-icon">📈</div>
+                            <h3>Grafici in arrivo</h3>
+                            <p>I grafici dettagliati saranno disponibili con più dati</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🏆 Top Performance</h2>
+                    <div id="topPerformance" class="performance-list">
+                        <p class="text-muted">I dati delle performance appariranno qui quando avrai più clienti attivi.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tools Section -->
+            <section id="tools" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h1>Strumenti di Coaching</h1>
+                        <p>Risorse e template per migliorare le tue sessioni</p>
+                    </div>
+                </div>
+
+                <div class="quick-actions-grid">
+                    <div class="quick-action-item" onclick="openAssessmentTool()">
+                        <div class="quick-action-icon">📋</div>
+                        <div class="quick-action-content">
+                            <h4>Assessment Tool</h4>
+                            <p>Valutazione competenze iniziali</p>
+                        </div>
+                    </div>
+                    <div class="quick-action-item" onclick="openGoalTracker()">
+                        <div class="quick-action-icon">🎯</div>
+                        <div class="quick-action-content">
+                            <h4>Goal Tracker</h4>
+                            <p>Monitoraggio obiettivi SMART</p>
+                        </div>
+                    </div>
+                    <div class="quick-action-item" onclick="openFeedbackForm()">
+                        <div class="quick-action-icon">💬</div>
+                        <div class="quick-action-content">
+                            <h4>Feedback 360°</h4>
+                            <p>Raccolta feedback strutturato</p>
+                        </div>
+                    </div>
+                    <div class="quick-action-item" onclick="openActionPlan()">
+                        <div class="quick-action-icon">📝</div>
+                        <div class="quick-action-content">
+                            <h4>Action Plan</h4>
+                            <p>Piano d'azione dettagliato</p>
+                        </div>
+                    </div>
+                    <div class="quick-action-item" onclick="openWheelOfLife()">
+                        <div class="quick-action-icon">🎡</div>
+                        <div class="quick-action-content">
+                            <h4>Wheel of Life</h4>
+                            <p>Valutazione equilibrio vita-lavoro</p>
+                        </div>
+                    </div>
+                    <div class="quick-action-item" onclick="openSWOTAnalysis()">
+                        <div class="quick-action-icon">⚖️</div>
+                        <div class="quick-action-content">
+                            <h4>Analisi SWOT</h4>
+                            <p>Forze, debolezze, opportunità</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📚 Template e Risorse</h2>
+                    <div class="resource-grid">
+                        <div class="resource-item">
+                            <h4>📋 Template Sessione</h4>
+                            <p>Struttura standard per ogni sessione</p>
+                            <button class="btn btn-sm btn-primary" onclick="downloadTemplate('session')">Scarica</button>
+                        </div>
+                        <div class="resource-item">
+                            <h4>📊 Report Template</h4>
+                            <p>Modello per report di progresso</p>
+                            <button class="btn btn-sm btn-primary" onclick="downloadTemplate('report')">Scarica</button>
+                        </div>
+                        <div class="resource-item">
+                            <h4>🎯 Goal Setting Guide</h4>
+                            <p>Guida per impostare obiettivi SMART</p>
+                            <button class="btn btn-sm btn-primary" onclick="downloadTemplate('goals')">Scarica</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="content-section">
+                <div class="section-header">
+                    <div>
+                        <h1>Impostazioni</h1>
+                        <p>Configura categorie, tag e preferenze del sistema</p>
+                    </div>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="card">
+                        <h2>🎯 Categorie Obiettivi</h2>
+                        <div id="categoriesList" class="item-list mb-3"></div>
+                        <div class="form-group inline-form">
+                            <input type="text" id="newCategoryInput" placeholder="Nuova categoria..." class="form-control">
+                            <button class="btn btn-primary" onclick="addCategory()">➕ Aggiungi</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>🏷️ Tags</h2>
+                        <div id="tagsList" class="item-list mb-3"></div>
+                        <div class="form-group inline-form">
+                            <input type="text" id="newTagInput" placeholder="Nuovo tag..." class="form-control">
+                            <button class="btn btn-primary" onclick="addTag()">➕ Aggiungi</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>⚙️ Preferenze Sistema</h2>
+                        <div class="form-group">
+                            <label>🔔 Notifiche</label>
+                            <div class="d-flex gap-3">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="emailNotifications" checked>
+                                    Email notifications
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="pushNotifications" checked>
+                                    Push notifications
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>🕐 Fuso Orario</label>
+                            <select class="form-select" id="timezone">
+                                <option value="Europe/Rome" selected>Europa/Roma (GMT+1)</option>
+                                <option value="Europe/London">Europa/Londra (GMT+0)</option>
+                                <option value="America/New_York">America/New York (GMT-5)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>💾 Auto-salvataggio</label>
+                            <select class="form-select" id="autosave">
+                                <option value="5" selected>Ogni 5 minuti</option>
+                                <option value="10">Ogni 10 minuti</option>
+                                <option value="30">Ogni 30 minuti</option>
+                                <option value="0">Disabilitato</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>📊 Export/Import</h2>
+                        <div class="d-flex gap-3 mb-3">
+                            <button class="btn btn-info" onclick="exportAllData()">📤 Esporta Tutto</button>
+                            <button class="btn btn-secondary" onclick="importData()">📥 Importa Dati</button>
+                        </div>
+                        <div class="form-group">
+                            <label>🗂️ Formato Export</label>
+                            <select class="form-select" id="exportFormat">
+                                <option value="json" selected>JSON (Completo)</option>
+                                <option value="csv">CSV (Solo dati)</option>
+                                <option value="pdf">PDF (Report)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="addCompanyModal" class="modal">
+        <div class="modal-content">
+            <h2>🏢 Aggiungi Azienda</h2>
+            <div class="form-group">
+                <label for="companyName">Nome Azienda</label>
+                <input type="text" id="companyName" placeholder="Nome azienda..." class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="companyType">Tipologia</label>
+                <select id="companyType" class="form-select">
+                    <option value="small">Piccola (1-10 dipendenti)</option>
+                    <option value="medium">Media (11-50 dipendenti)</option>
+                    <option value="large">Grande (50+ dipendenti)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="companyNotes">Note</label>
+                <textarea id="companyNotes" class="form-control" rows="3" placeholder="Note aggiuntive sull'azienda..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="addCompany()">💾 Salva</button>
+                <button class="btn btn-secondary" onclick="closeModal('addCompanyModal')">❌ Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="companyDetailsModal" class="modal">
+        <div class="modal-content">
+            <h2 id="companyDetailsTitle">🏢 Dettagli Azienda</h2>
+            <div class="card">
+                <h3>👥 Clienti</h3>
+                <div class="search-filter-bar">
+                    <input type="text" class="search-input" placeholder="🔍 Cerca clienti..." id="modalClientSearch">
+                </div>
+                <div class="client-grid" id="clientGrid"></div>
+                <button class="btn btn-primary" onclick="showAddClientModal()">➕ Aggiungi Cliente</button>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModal('companyDetailsModal')">🔙 Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="addClientModal" class="modal">
+        <div class="modal-content">
+            <h2>👤 Aggiungi Cliente</h2>
+            <div class="form-group">
+                <label for="clientFirstName">Nome</label>
+                <input type="text" id="clientFirstName" placeholder="Nome..." class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="clientLastName">Cognome</label>
+                <input type="text" id="clientLastName" placeholder="Cognome..." class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="clientEmail">Email</label>
+                <input type="email" id="clientEmail" placeholder="email@esempio.com" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="clientRole">Ruolo</label>
+                <input type="text" id="clientRole" placeholder="Es: Manager, Dirigente..." class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="plannedSessions">Numero di sessioni programmate</label>
+                <input type="number" id="plannedSessions" min="1" value="10" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="hoursPerSession">Ore per sessione</label>
+                <input type="number" id="hoursPerSession" min="0.5" step="0.5" value="1.5" class="form-control">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="addClient()">💾 Salva</button>
+                <button class="btn btn-secondary" onclick="closeModal('addClientModal')">❌ Annulla</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts - ORDINE IMPORTANTE -->
+    <script src="data.js"></script>
+    <script src="utils.js"></script>
+    <script src="dom.js"></script>
+    <script src="modals.js"></script>
+    <script src="companyClientManagement.js"></script>
+    <script src="sessionManagement.js"></script>
+    <script src="settingsManagement.js"></script>
+    <script src="dashboardManagement.js"></script>
+    <script src="features.js"></script>
+    
+    <!-- Navigation Fix Script - DEVE ESSERE L'ULTIMO -->
+    <script>
+// navigation-fix.js integrato - Fix completo per la navigazione
+
+// Variabili globali per la gestione dello stato
+let isNavigationSetup = false;
+let currentSection = 'dashboard';
+
+// Funzione principale di inizializzazione
+function initApp() {
+    console.log('🚀 Inizializzazione Mental Coach Pro...');
+    
+    try {
+        // Carica i dati salvati
+        loadDataFromLocalStorage();
+        
+        // Inizializza le funzioni di base
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // Configura la navigazione
+        setupNavigation();
+        
+        // Configura i filtri di ricerca
+        setupSearchFilters();
+        
+        // Carica le preferenze se la funzione esiste
+        if (typeof loadPreferences === 'function') {
+            loadPreferences();
+        }
+        
+        // Setup auto-salvataggio se la funzione esiste
+        if (typeof setupAutosave === 'function') {
+            setupAutosave();
+        }
+        
+        // Aggiorna i dati della dashboard
+        updateDashboard();
+        
+        // Aggiorna analytics
+        updateAnalytics();
+        
+        // Renderizza i componenti principali
+        renderGlobalTodos();
+        renderCategories();
+        renderTags();
+        
+        // Nascondi tutti i modali
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.style.display = 'none';
+        });
+        
+        // Mostra la sezione dashboard
+        showSection('dashboard');
+        
+        // Setup event listeners aggiuntivi
+        setupAdditionalEventListeners();
+        
+        console.log('✅ Inizializzazione completata con successo');
+        
+    } catch (error) {
+        console.error('❌ Errore durante l\'inizializzazione:', error);
+        alert('Errore durante l\'inizializzazione dell\'applicazione. Ricarica la pagina.');
+    }
+}
+
+// Setup della navigazione con debugging
+function setupNavigation() {
+    console.log('🧭 Setup navigazione...');
+    
+    if (isNavigationSetup) {
+        console.log('⚠️ Navigazione già configurata');
+        return;
+    }
+    
+    const navTabs = document.querySelectorAll('.nav-tab');
+    console.log(`📋 Trovati ${navTabs.length} tab di navigazione`);
+    
+    navTabs.forEach((tab, index) => {
+        const sectionId = tab.dataset.section;
+        console.log(`🔗 Configurando tab ${index + 1}: ${sectionId}`);
+        
+        // Rimuovi listener esistenti per evitare duplicati
+        tab.replaceWith(tab.cloneNode(true));
+        const newTab = document.querySelectorAll('.nav-tab')[index];
+        
+        // Aggiungi nuovo listener
+        newTab.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const targetSection = this.dataset.section;
+            console.log(`🎯 Click su tab: ${targetSection}`);
+            
+            if (targetSection) {
+                showSection(targetSection);
+            } else {
+                console.error('❌ Sezione non trovata per tab:', this);
+            }
+        });
+    });
+    
+    isNavigationSetup = true;
+    console.log('✅ Navigazione configurata');
+}
+
+// Funzione per mostrare una sezione specifica
+function showSection(sectionId) {
+    console.log(`🔄 Cambio sezione: ${currentSection} → ${sectionId}`);
+    
+    if (currentSection === sectionId) {
+        console.log('⚠️ Sezione già attiva');
+        return;
+    }
+    
+    try {
+        // Rimuovi classe active da tutte le sezioni
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        
+        // Rimuovi classe active da tutti i tab
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Attiva la sezione target
+        const targetSection = document.getElementById(sectionId);
+        const targetTab = document.querySelector(`.nav-tab[data-section="${sectionId}"]`);
+        
+        if (targetSection && targetTab) {
+            targetSection.classList.add('active');
+            targetTab.classList.add('active');
+            currentSection = sectionId;
+            
+            // Carica i dati specifici per la sezione
+            loadSectionData(sectionId);
+            
+            console.log(`✅ Sezione attivata: ${sectionId}`);
+        } else {
+            console.error(`❌ Sezione o tab non trovato: ${sectionId}`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Errore nel cambio sezione:', error);
+    }
+}
+
+// Carica i dati specifici per ogni sezione
+function loadSectionData(sectionId) {
+    console.log(`📊 Caricamento dati per sezione: ${sectionId}`);
+    
+    try {
+        switch(sectionId) {
+            case 'dashboard':
+                updateDashboard();
+                renderGlobalTodos();
+                break;
+                
+            case 'companies':
+                if (typeof renderCompanies === 'function') {
+                    renderCompanies();
+                }
+                break;
+                
+            case 'sessions':
+                if (typeof loadCompaniesForSessionSelection === 'function') {
+                    loadCompaniesForSessionSelection();
+                }
+                break;
+                
+            case 'analytics':
+                updateAnalytics();
+                loadAnalyticsData();
+                break;
+                
+            case 'tools':
+                loadToolsSection();
+                break;
+                
+            case 'settings':
+                renderCategories();
+                renderTags();
+                break;
+                
+            default:
+                console.log(`⚠️ Nessun caricamento specifico per: ${sectionId}`);
+        }
+        
+    } catch (error) {
+        console.error(`❌ Errore caricamento dati per ${sectionId}:`, error);
+    }
+}
+
+// Setup dei filtri di ricerca
+function setupSearchFilters() {
+    console.log('🔍 Setup filtri di ricerca...');
+    
+    // Filtro aziende
+    const companySearch = document.getElementById('companySearch');
+    if (companySearch) {
+        companySearch.addEventListener('input', debounce(filterCompanies, 300));
+        console.log('✅ Filtro aziende configurato');
+    }
+    
+    // Filtro tipo azienda
+    const companyFilter = document.getElementById('companyFilter');
+    if (companyFilter) {
+        companyFilter.addEventListener('change', filterCompanies);
+        console.log('✅ Filtro tipo azienda configurato');
+    }
+    
+    // Filtro clienti
+    const clientSearch = document.getElementById('clientSearch');
+    if (clientSearch) {
+        clientSearch.addEventListener('input', debounce(filterClients, 300));
+        console.log('✅ Filtro clienti configurato');
+    }
+    
+    // Filtro clienti nel modal
+    const modalClientSearch = document.getElementById('modalClientSearch');
+    if (modalClientSearch) {
+        modalClientSearch.addEventListener('input', debounce(filterModalClients, 300));
+        console.log('✅ Filtro clienti modal configurato');
+    }
+}
+
+// Setup event listeners aggiuntivi
+function setupAdditionalEventListeners() {
+    console.log('🎧 Setup event listeners aggiuntivi...');
+    
+    // Event listener per salvare le note del cliente
+    const clientNotes = document.getElementById('clientNotes');
+    if (clientNotes) {
+        clientNotes.addEventListener('blur', saveClientNotes);
+        
+        // Auto-save durante la digitazione
+        let saveTimeout;
+        clientNotes.addEventListener('input', () => {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveClientNotes, 2000);
+        });
+        
+        console.log('✅ Auto-save note cliente configurato');
+    }
+    
+    // Event listener per le preferenze
+    ['emailNotifications', 'pushNotifications', 'timezone', 'autosave'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element && typeof savePreferences === 'function') {
+            element.addEventListener('change', savePreferences);
+        }
+    });
+    
+    // Event listener per i modali (chiusura con ESC)
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            const visibleModals = document.querySelectorAll('.modal[style*="flex"]');
+            visibleModals.forEach(modal => {
+                modal.style.display = 'none';
+            });
+        }
+    });
+    
+    console.log('✅ Event listeners aggiuntivi configurati');
+}
+
+// Funzioni di filtro
+function filterCompanies() {
+    const searchTerm = document.getElementById('companySearch')?.value?.toLowerCase() || '';
+    const filterType = document.getElementById('companyFilter')?.value || '';
+    
+    console.log(`🔍 Filtro aziende: "${searchTerm}" tipo: "${filterType}"`);
+    
+    if (typeof renderCompanies === 'function') {
+        renderCompanies(searchTerm, filterType);
+    }
+}
+
+function filterClients() {
+    const searchTerm = document.getElementById('clientSearch')?.value?.toLowerCase() || '';
+    console.log(`🔍 Filtro clienti: "${searchTerm}"`);
+    
+    if (appData.currentCompanyId && typeof renderClientsForSessionSelection === 'function') {
+        renderClientsForSessionSelection();
+    }
+}
+
+function filterModalClients() {
+    const searchTerm = document.getElementById('modalClientSearch')?.value?.toLowerCase() || '';
+    console.log(`🔍 Filtro clienti modal: "${searchTerm}"`);
+    
+    if (appData.currentCompanyId) {
+        const company = appData.companies.find(c => c.id === appData.currentCompanyId);
+        if (company && typeof renderClientsInModal === 'function') {
+            renderClientsInModal(company, searchTerm);
+        }
+    }
+}
+
+// Funzioni Analytics
+function updateAnalytics() {
+    console.log('📈 Aggiornamento analytics...');
+    
+    let totalGoals = 0;
+    let completedGoals = 0;
+    let currentMonthSessions = 0;
+
+    appData.companies.forEach(company => {
+        company.clients.forEach(client => {
+            client.masterElements.forEach(master => {
+                totalGoals++;
+                if (master.subElements.length > 0 && master.subElements.every(sub => sub.completed)) {
+                    completedGoals++;
+                }
+            });
+            
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            client.sessionHistory.forEach(session => {
+                const sessionDate = new Date(session.date);
+                if (sessionDate.getMonth() === currentMonth && sessionDate.getFullYear() === currentYear) {
+                    currentMonthSessions++;
+                }
+            });
+        });
+    });
+
+    const completionRate = totalGoals > 0 ? ((completedGoals / totalGoals) * 100).toFixed(1) : 0;
+    const activeGoals = totalGoals - completedGoals;
+
+    const completionRateEl = document.getElementById('completionRate');
+    const averageRatingEl = document.getElementById('averageRating');
+    const activeGoalsEl = document.getElementById('activeGoals');
+    const monthlyAverageEl = document.getElementById('monthlyAverage');
+
+    if (completionRateEl) completionRateEl.textContent = completionRate + '%';
+    if (averageRatingEl) averageRatingEl.textContent = '0.0';
+    if (activeGoalsEl) activeGoalsEl.textContent = activeGoals;
+    if (monthlyAverageEl) monthlyAverageEl.textContent = currentMonthSessions;
+    
+    console.log('✅ Analytics aggiornati');
+}
+
+function loadAnalyticsData() {
+    console.log('📊 Caricamento dati analytics...');
+    
+    const topPerformanceDiv = document.getElementById('topPerformance');
+    if (topPerformanceDiv) {
+        const clientPerformance = [];
+        
+        appData.companies.forEach(company => {
+            company.clients.forEach(client => {
+                const completedGoals = client.masterElements.filter(m => 
+                    m.subElements.length > 0 && m.subElements.every(s => s.completed)
+                ).length;
+                
+                const totalGoals = client.masterElements.length;
+                const completionRate = totalGoals > 0 ? (completedGoals / totalGoals) * 100 : 0;
+                
+                clientPerformance.push({
+                    name: `${client.firstName} ${client.lastName}`,
+                    company: company.name,
+                    completionRate: completionRate,
+                    sessionsCompleted: client.completedSessions,
+                    totalSessions: client.plannedSessions
+                });
+            });
+        });
+        
+        clientPerformance.sort((a, b) => b.completionRate - a.completionRate);
+        const top5 = clientPerformance.slice(0, 5);
+        
+        if (top5.length > 0) {
+            topPerformanceDiv.innerHTML = top5.map((client, index) => `
+                <div class="performance-item">
+                    <div>
+                        <strong>${index + 1}. ${client.name}</strong>
+                        <small>${client.company}</small>
+                    </div>
+                    <div class="performance-stats">
+                        <span class="completion-rate">${client.completionRate.toFixed(1)}%</span>
+                        <small>${client.sessionsCompleted}/${client.totalSessions} sessioni</small>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            topPerformanceDiv.innerHTML = '<p class="text-muted">I dati delle performance appariranno qui quando avrai più clienti attivi.</p>';
+        }
+    }
+}
+
+// Funzioni per la sezione Tools
+function loadToolsSection() {
+    console.log('🛠️ Caricamento sezione strumenti...');
+}
+
+function openAssessmentTool() {
+    showTemporaryMessage('📋 Assessment Tool - Funzionalità in sviluppo', 3000);
+}
+
+function openGoalTracker() {
+    showTemporaryMessage('🎯 Goal Tracker - Funzionalità in sviluppo', 3000);
+}
+
+function openFeedbackForm() {
+    showTemporaryMessage('💬 Feedback 360° - Funzionalità in sviluppo', 3000);
+}
+
+function openActionPlan() {
+    showTemporaryMessage('📝 Action Plan - Funzionalità in sviluppo', 3000);
+}
+
+function openWheelOfLife() {
+    showTemporaryMessage('🎡 Wheel of Life - Funzionalità in sviluppo', 3000);
+}
+
+function openSWOTAnalysis() {
+    showTemporaryMessage('⚖️ Analisi SWOT - Funzionalità in sviluppo', 3000);
+}
+
+function downloadTemplate(type) {
+    showTemporaryMessage(`📄 Download template ${type} - Funzionalità in sviluppo`, 3000);
+}
+
+function generateAnalyticsReport() {
+    showTemporaryMessage('📊 Generazione report analytics - Funzionalità in sviluppo', 3000);
+}
+
+// Funzione per aggiornare le barre di progresso
+function updateProgress() {
+    const companyId = appData.currentCompanyId;
+    const clientId = appData.currentClientId;
+    
+    if (!companyId || !clientId) return;
+    
+    const company = appData.companies.find(c => c.id === companyId);
+    const client = company?.clients.find(c => c.id === clientId);
+    
+    if (!client) return;
+    
+    const sessionProgress = Math.min((client.completedSessions / client.plannedSessions) * 100, 100);
+    const sessionProgressBar = document.getElementById('sessionProgress');
+    const progressText = document.getElementById('progressText');
+    
+    if (sessionProgressBar) {
+        sessionProgressBar.style.width = sessionProgress + '%';
+    }
+    if (progressText) {
+        progressText.textContent = 
+            `${client.completedSessions}/${client.plannedSessions} sessioni (${sessionProgress.toFixed(1)}%)`;
+    }
+    
+    let totalObjectives = client.masterElements.length;
+    let completedObjectives = client.masterElements.filter(master => 
+        master.subElements.length > 0 && master.subElements.every(sub => sub.completed)
+    ).length;
+    
+    const coachingProgress = totalObjectives > 0 ? (completedObjectives / totalObjectives) * 100 : 0;
+    const coachingProgressBar = document.getElementById('coachingProgress');
+    const coachingProgressText = document.getElementById('coachingProgressText');
+    
+    if (coachingProgressBar) {
+        coachingProgressBar.style.width = coachingProgress + '%';
+    }
+    if (coachingProgressText) {
+        coachingProgressText.textContent = 
+            `${completedObjectives}/${totalObjectives} obiettivi (${coachingProgress.toFixed(1)}%)`;
+    }
+}
+
+// Utility functions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function showTemporaryMessage(message, duration = 3000) {
+    const existingMessages = document.querySelectorAll('.temporary-message');
+    existingMessages.forEach(msg => msg.remove());
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'temporary-message';
+    messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        z-index: 9999;
+        font-weight: 500;
+        font-size: 0.9rem;
+        animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        max-width: 300px;
+        word-wrap: break-word;
+    `;
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        messageDiv.style.animation = 'slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                document.body.removeChild(messageDiv);
+            }
+        }, 400);
+    }, duration);
+}
+
+function debugNavigation() {
+    console.log('🔍 Debug Navigazione:');
+    console.log('- isNavigationSetup:', isNavigationSetup);
+    console.log('- currentSection:', currentSection);
+    console.log('- Nav tabs trovati:', document.querySelectorAll('.nav-tab').length);
+    console.log('- Sezioni trovate:', document.querySelectorAll('.content-section').length);
+    
+    document.querySelectorAll('.nav-tab').forEach((tab, index) => {
+        console.log(`  Tab ${index + 1}: ${tab.dataset.section} - ${tab.classList.contains('active') ? 'ATTIVO' : 'inattivo'}`);
+    });
+    
+    document.querySelectorAll('.content-section').forEach((section, index) => {
+        console.log(`  Sezione ${index + 1}: ${section.id} - ${section.classList.contains('active') ? 'ATTIVA' : 'inattiva'}`);
+    });
+}
+
+// Funzioni helper per salvataggio note
+function saveClientNotes() {
+    const notesTextarea = document.getElementById('clientNotes');
+    if (notesTextarea && appData.currentCompanyId && appData.currentClientId) {
+        const company = appData.companies.find(c => c.id === appData.currentCompanyId);
+        const client = company?.clients.find(c => c.id === appData.currentClientId);
+        
+        if (client) {
+            client.notes = notesTextarea.value;
+            saveDataToLocalStorage();
+            
+            notesTextarea.style.borderColor = '#4facfe';
+            setTimeout(() => {
+                notesTextarea.style.borderColor = '';
+            }, 1000);
+        }
+    }
+}
+
+// CSS per le animazioni
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    .performance-item {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .performance-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .performance-stats {
+        text-align: right;
+    }
+    
+    .completion-rate {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #667eea;
+        display: block;
+    }
+    
+    .performance-stats small {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+    
+    .resource-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .resource-item {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .resource-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .resource-item h4 {
+        margin-bottom: 8px;
+        color: #1e293b;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .resource-item p {
+        margin-bottom: 15px;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+    
+    .chart-placeholder {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        border-radius: 12px;
+        border: 2px dashed #cbd5e1;
+    }
+    
+    .chart-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+    }
+    
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #374151;
+    }
+    
+    .checkbox-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #667eea;
+    }
+`;
+
+if (!document.querySelector('#navigation-styles')) {
+    style.id = 'navigation-styles';
+    document.head.appendChild(style);
+}
+
+// Esporta funzioni per uso globale
+window.showSection = showSection;
+window.debugNavigation = debugNavigation;
+window.showTemporaryMessage = showTemporaryMessage;
+
+// Event listener per il caricamento
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    // Se il DOM è già caricato, inizializza subito
+    setTimeout(initApp, 100);
+}
+
+console.log('📱 Mental Coach Pro - Sistema di navigazione caricato');
+    </script>
+</body>
+</html>
